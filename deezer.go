@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type DeezerResponse struct {
@@ -23,8 +22,7 @@ type DeezerArtist struct {
 	Name string
 }
 
-func getTracksFromDeezerPlaylist() []DeezerTrack {
-	deezerClient := http.Client{Timeout: time.Duration(4) * time.Second}
+func getTracksFromDeezerPlaylist(deezerClient http.Client) []DeezerTrack {
 	deezerUrl = fmt.Sprintf(deezerUrl, strconv.Itoa(deezerPlaylistId), strconv.Itoa(deezerLimit), deezerAccessToken)
 	res, err := deezerClient.Get(deezerUrl)
 	if err != nil {

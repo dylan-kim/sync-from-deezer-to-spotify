@@ -25,13 +25,13 @@ var (
 )
 
 func main() {
-	syncDeezerPlaylistToSpotify()
+	deezerClient := http.Client{Timeout: time.Duration(4) * time.Second}
+	spotifyClient := http.Client{Timeout: time.Duration(10) * time.Second}
+	syncDeezerPlaylistToSpotify(deezerClient, spotifyClient)
 }
 
-func syncDeezerPlaylistToSpotify() {
-	spotifyClient := http.Client{Timeout: time.Duration(10) * time.Second}
+func syncDeezerPlaylistToSpotify(deezerClient http.Client, spotifyClient http.Client) {
 	spotifyTracksUris := []string{}
-
 	notFoundDeezerTracks := []DeezerTrack{}
 	deezerTracks := getTracksFromDeezerPlaylist()
 
@@ -61,9 +61,9 @@ func syncDeezerPlaylistToSpotify() {
 		req, err := createSpotifyAddItemsRequest(spotifyTracksUrisSliced)
 		response, err := spotifyClient.Do(req)
 		if err != nil {
-			log.Println("Error while adding track to a playlist using Spotify API", err)
+			log.Println("Error while adding track to a playlist using Spotify API:", err)
 		}
-		log.Println("Adding items to the playlist with status code: ", response.StatusCode)
+		log.Println("Adding items to the playlist with status code:", response.StatusCode)
 	}
 	log.Println("Synchronization done")
 }
