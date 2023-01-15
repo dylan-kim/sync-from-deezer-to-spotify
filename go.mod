@@ -1,3 +1,3 @@
-module playlist
+module main
 
 go 1.19

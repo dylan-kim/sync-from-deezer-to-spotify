@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -18,6 +21,22 @@ type SpotifyTrack struct {
 
 type SpotifyItem struct {
 	Uri string
+}
+
+func getSpotifyTrackFor(spotifyClient http.Client, title string, artist string) SpotifyResponse {
+	req, err := createSpotifySearchRequest(title, artist)
+	res, _ := spotifyClient.Do(req)
+	if err != nil {
+		log.Println("Error while calling Spotify Search API:", err)
+	}
+
+	body, _ := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Println("Error while reading the response bytes:", err)
+	}
+	spotifyResponse := SpotifyResponse{}
+	json.Unmarshal(body, &spotifyResponse)
+	return spotifyResponse
 }
 
 func createSpotifySearchRequest(track string, artist string) (*http.Request, error) {

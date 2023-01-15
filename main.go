@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -33,21 +31,10 @@ func main() {
 func syncDeezerPlaylistToSpotify(deezerClient http.Client, spotifyClient http.Client) {
 	spotifyTracksUris := []string{}
 	notFoundDeezerTracks := []DeezerTrack{}
-	deezerTracks := getTracksFromDeezerPlaylist()
+	deezerTracks := getTracksFromDeezerPlaylist(deezerClient)
 
 	for _, deezerTrack := range deezerTracks {
-		req, err := createSpotifySearchRequest(deezerTrack.Title, deezerTrack.DeezerArtist.Name)
-		res, _ := spotifyClient.Do(req)
-		if err != nil {
-			log.Println("Error while calling Spotify Search API:", err)
-		}
-
-		body, _ := ioutil.ReadAll(res.Body)
-		if err != nil {
-			log.Println("Error while reading the response bytes:", err)
-		}
-		spotifyResponse := SpotifyResponse{}
-		json.Unmarshal(body, &spotifyResponse)
+		spotifyResponse := getSpotifyTrackFor(spotifyClient, deezerTrack.Title, deezerTrack.DeezerArtist.Name)
 		if len(spotifyResponse.SpotifyTracks.SpotifyItems) > 0 {
 			spotifyTracksUris = append(spotifyTracksUris, spotifyResponse.SpotifyTracks.SpotifyItems[0].Uri)
 		} else {
